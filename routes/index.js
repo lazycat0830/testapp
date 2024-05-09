@@ -7,40 +7,23 @@ const sequelize = new Sequelize("Warehousing", "blackcat9052", "Sfhjlk9052", {
   dialect: "mssql",
 });
 
-const User = sequelize.define(
-  "Company",
-  {
-    // 定義 Model 屬性
-    com_name: {
-      // 欄位名稱
-      type: Sequelize.STRING, //  資料型態
-      allowNull: false, // 能不能為空，預設是 true
-    },
-    com_homemadeName: {
-      type: Sequelize.STRING,
-      // allowNull defaults to true
-    },
-  },
-  {
-    // Other model options go here
-  }
-);
-
 /* GET home page. localhost:3000/ */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
 });
 
 /* GET localhost:3000/test */
-router.get("/test", function (req, res, next) {
-  sequelize.sync().then(() => {
-    // 寫入對映欄位名稱的資料內容
-    User.findAll().then((users) => {
-      // 用 JSON.stringify() 來格式化輸出
-      console.log("All users:", JSON.stringify(users, null, 4));
+router.get("/test", async function (req, res, next) {
+  const sql = `SELECT * FROM Company`;
+  try {
+    const account = await sequelize.query(sql, {
+      type: sequelize.QueryTypes.SELECT,
     });
-  });
-  res.send("This is localhost:3000/test");
+    res.status(200).send(account);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 module.exports = router;
